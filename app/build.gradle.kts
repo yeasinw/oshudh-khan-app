@@ -64,5 +64,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.haze)
+    implementation(libs.haze.materials)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 }
