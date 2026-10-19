@@ -1,5 +1,6 @@
 package com.yeasinx.oshudhkhan.ui.home
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -8,6 +9,8 @@ import com.yeasinx.oshudhkhan.data.DoseSchedule
 import com.yeasinx.oshudhkhan.data.Medicine
 import com.yeasinx.oshudhkhan.data.MedicineRepository
 import com.yeasinx.oshudhkhan.data.UserRepository
+import com.yeasinx.oshudhkhan.notification.AlarmScheduler
+import com.yeasinx.oshudhkhan.notification.NotificationHelper
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -18,7 +21,14 @@ import java.time.LocalTime
 
 data class DaySummary(val date: LocalDate, val taken: Int, val scheduled: Int)
 
-data class TodayDose(val medicine: Medicine, val time: LocalTime, val taken: Boolean)
+data class TodayDose(
+    val medicine: Medicine,
+    val time: LocalTime,
+    val takenAt: Long?,
+    val notificationId: Int
+) {
+    val taken get() = takenAt != null
+}
 
 data class HomeUiState(
     val greeting: String = "",
@@ -36,7 +46,8 @@ fun greetingFor(hour: Int): String = when (hour) {
 
 class HomeViewModel(
     private val medicineRepository: MedicineRepository,
-    userRepository: UserRepository
+    userRepository: UserRepository,
+    private val appContext: Context
 ) : ViewModel() {
 
     private val today = LocalDate.now()
@@ -47,7 +58,7 @@ class HomeViewModel(
         medicineRepository.allMedicine,
         medicineRepository.doseLogsBetween(weekStart, today)
     ) { profile, medicines, logs ->
-        val takenKeys = logs.map { it.key() }.toSet()
+        val takenAtByKey = logs.associate { it.key() to it.takenAt }
         HomeUiState(
             greeting = greetingFor(LocalTime.now().hour),
             name = profile.name,
@@ -60,16 +71,32 @@ class HomeViewModel(
             },
             today = medicines.flatMap { medicine ->
                 DoseSchedule.dosesFor(medicine, today).map { time ->
-                    TodayDose(medicine, time, Triple(medicine.id, today.toString(), time.toString()) in takenKeys)
+                    TodayDose(
+                        medicine = medicine,
+                        time = time,
+                        takenAt = takenAtByKey[Triple(medicine.id, today.toString(), time.toString())],
+                        notificationId = AlarmScheduler.requestCode(
+                            medicine.id,
+                            DoseSchedule.reminderTimes(medicine).indexOf(time)
+                        )
+                    )
                 }
             }.sortedBy { it.time }
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
-    fun setTaken(dose: TodayDose, taken: Boolean) {
+    fun markTaken(dose: TodayDose) {
         viewModelScope.launch {
-            if (taken) medicineRepository.markTaken(dose.medicine.id, today, dose.time)
-            else medicineRepository.unmarkTaken(dose.medicine.id, today, dose.time)
+            medicineRepository.markTaken(dose.medicine.id, today, dose.time)
+            // A reminder still on screen for this dose is now stale
+            NotificationHelper.cancel(appContext, dose.notificationId)
+        }
+    }
+
+    // Only offered briefly after marking (snackbar Undo), to recover from a mis-tap.
+    fun undoTaken(dose: TodayDose) {
+        viewModelScope.launch {
+            medicineRepository.unmarkTaken(dose.medicine.id, today, dose.time)
         }
     }
 
@@ -78,12 +105,13 @@ class HomeViewModel(
 
 class HomeViewModelFactory(
     private val medicineRepository: MedicineRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val appContext: Context
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
-            return HomeViewModel(medicineRepository, userRepository) as T
+            return HomeViewModel(medicineRepository, userRepository, appContext) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
                     factory = MedicineViewModelFactory(app.repository, applicationContext)
                 )
                 val homeViewModel: HomeViewModel = viewModel(
-                    factory = HomeViewModelFactory(app.repository, app.userRepository)
+                    factory = HomeViewModelFactory(app.repository, app.userRepository, applicationContext)
                 )
                 val profileViewModel: ProfileViewModel = viewModel(
                     factory = ProfileViewModelFactory(app.userRepository)
