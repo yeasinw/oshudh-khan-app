@@ -22,7 +22,8 @@ import com.yeasinx.oshudhkhan.ui.components.MedicineCard
 @Composable
 fun MedicineListScreen(
     viewModel: MedicineViewModel,
-    onAddMedicine: () -> Unit
+    onAddMedicine: () -> Unit,
+    onEditMedicine: (Medicine) -> Unit
 ) {
     val medicines by viewModel.medicine.collectAsState()
     var medicineToDelete by remember { mutableStateOf<Medicine?>(null) }
@@ -107,6 +108,7 @@ fun MedicineListScreen(
                         MedicineCard(
                             medicine = medicine,
                             onToggleActive = { viewModel.toggleActive(it) },
+                            onEdit = onEditMedicine,
                             onDelete = { medicineToDelete = it }
                         )
                     }

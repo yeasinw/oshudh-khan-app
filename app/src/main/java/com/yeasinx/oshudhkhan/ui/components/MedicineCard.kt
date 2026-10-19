@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
@@ -20,6 +21,7 @@ import com.yeasinx.oshudhkhan.data.Medicine
 fun MedicineCard(
     medicine: Medicine,
     onToggleActive: (Medicine) -> Unit,
+    onEdit: (Medicine) -> Unit,
     onDelete: (Medicine) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -119,11 +121,20 @@ fun MedicineCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Delete button
+            // Edit / Delete buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
             ) {
+                OutlinedButton(onClick = { onEdit(medicine) }) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = "Edit", fontWeight = FontWeight.Medium)
+                }
                 TextButton(
                     onClick = { onDelete(medicine) },
                     colors = ButtonDefaults.textButtonColors(

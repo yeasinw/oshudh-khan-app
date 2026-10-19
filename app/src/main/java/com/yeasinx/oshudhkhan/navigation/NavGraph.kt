@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
@@ -19,7 +21,10 @@ import com.yeasinx.oshudhkhan.ui.screens.ProfileScreen
 sealed class Screen(val route: String) {
     object Home : Screen("home")
     object MedicineList : Screen("medicine_list")
-    object AddMedicine : Screen("add_medicine")
+    object AddMedicine : Screen("add_medicine?medicineId={medicineId}") {
+        const val ADD = "add_medicine"
+        fun editRoute(id: Int) = "add_medicine?medicineId=$id"
+    }
     object Profile : Screen("profile")
 }
 
@@ -49,12 +54,20 @@ fun MedicineNavGraph(
         composable(Screen.MedicineList.route) {
             MedicineListScreen(
                 viewModel = viewModel,
-                onAddMedicine = { navController.navigate(Screen.AddMedicine.route) }
+                onAddMedicine = { navController.navigate(Screen.AddMedicine.ADD) },
+                onEditMedicine = { navController.navigate(Screen.AddMedicine.editRoute(it.id)) }
             )
         }
-        composable(Screen.AddMedicine.route) {
+        composable(
+            Screen.AddMedicine.route,
+            arguments = listOf(navArgument("medicineId") {
+                type = NavType.IntType
+                defaultValue = -1
+            })
+        ) { backStackEntry ->
             AddMedicineScreen(
                 viewModel = viewModel,
+                medicineId = backStackEntry.arguments?.getInt("medicineId")?.takeIf { it > 0 },
                 onNavigateBack = { navController.popBackStack() }
             )
         }
