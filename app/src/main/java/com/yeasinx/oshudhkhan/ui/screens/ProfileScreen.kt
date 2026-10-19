@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.yeasinx.oshudhkhan.ui.profile.ProfileErrors
 import com.yeasinx.oshudhkhan.ui.profile.ProfileViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(viewModel: ProfileViewModel, bottomPadding: Dp) {
     val profile by viewModel.profile.collectAsState()
@@ -38,79 +39,94 @@ fun ProfileScreen(viewModel: ProfileViewModel, bottomPadding: Dp) {
         editing = true
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = bottomPadding),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier
-                .size(88.dp)
-                .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = profile.name.firstOrNull()?.uppercase() ?: "?",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Profile",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             )
         }
-        Spacer(Modifier.height(24.dp))
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = bottomPadding),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(88.dp)
+                    .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = profile.name.firstOrNull()?.uppercase() ?: "?",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+            Spacer(Modifier.height(24.dp))
 
-        if (editing) {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Name") },
-                isError = errors.name != null,
-                supportingText = errors.name?.let { { Text(it) } },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = age,
-                onValueChange = { input -> age = input.filter { it.isDigit() }.take(3) },
-                label = { Text("Age") },
-                isError = errors.age != null,
-                supportingText = errors.age?.let { { Text(it) } },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
-                isError = errors.email != null,
-                supportingText = errors.email?.let { { Text(it) } },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(16.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = { editing = false }) { Text("Cancel") }
-                Button(onClick = {
-                    errors = viewModel.save(name, age, email)
-                    if (errors.isEmpty) editing = false
-                }) { Text("Save") }
-            }
-        } else {
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    ProfileRow("Name", profile.name.ifBlank { "Not set" })
-                    ProfileRow("Age", profile.age?.toString() ?: "Not set")
-                    ProfileRow("Email", profile.email.ifBlank { "Not set" })
+            if (editing) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Name") },
+                    isError = errors.name != null,
+                    supportingText = errors.name?.let { { Text(it) } },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = age,
+                    onValueChange = { input -> age = input.filter { it.isDigit() }.take(3) },
+                    label = { Text("Age") },
+                    isError = errors.age != null,
+                    supportingText = errors.age?.let { { Text(it) } },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    isError = errors.email != null,
+                    supportingText = errors.email?.let { { Text(it) } },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(Modifier.height(16.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedButton(onClick = { editing = false }) { Text("Cancel") }
+                    Button(onClick = {
+                        errors = viewModel.save(name, age, email)
+                        if (errors.isEmpty) editing = false
+                    }) { Text("Save") }
                 }
-            }
-            Spacer(Modifier.height(16.dp))
-            Button(onClick = { startEditing() }) {
-                Icon(Icons.Default.Edit, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Edit profile")
+            } else {
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        ProfileRow("Name", profile.name.ifBlank { "Not set" })
+                        ProfileRow("Age", profile.age?.toString() ?: "Not set")
+                        ProfileRow("Email", profile.email.ifBlank { "Not set" })
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+                Button(onClick = { startEditing() }) {
+                    Icon(Icons.Default.Edit, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Edit profile")
+                }
             }
         }
     }
