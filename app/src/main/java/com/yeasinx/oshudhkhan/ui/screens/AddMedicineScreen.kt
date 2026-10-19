@@ -24,6 +24,7 @@ import com.yeasinx.oshudhkhan.ui.medicine.MedicineViewModel
 @Composable
 fun AddMedicineScreen(
     viewModel: MedicineViewModel,
+    medicineId: Int?,
     onNavigateBack: () -> Unit
 ) {
     var name by remember { mutableStateOf("") }
@@ -33,13 +34,32 @@ fun AddMedicineScreen(
     var intervalDays by remember { mutableIntStateOf(2) }
     val reminderTimes = remember { mutableStateListOf("08:00") }
     var showTimePickerForIndex by remember { mutableStateOf<Int?>(null) }
+    var original by remember { mutableStateOf<Medicine?>(null) }
+    val isEditing = medicineId != null
 
-    val isFormValid = name.isNotBlank() && dosage.isNotBlank()
+    // Pre-fill the form once when editing
+    LaunchedEffect(medicineId) {
+        if (medicineId == null || original != null) return@LaunchedEffect
+        val medicine = viewModel.getMedicine(medicineId) ?: return@LaunchedEffect
+        original = medicine
+        name = medicine.name
+        dosage = medicine.dosage
+        frequencyType = medicine.frequencyType
+        timesPerDay = medicine.timesPerDay
+        intervalDays = if (medicine.frequencyType == FrequencyType.EVERY_N_DAYS) medicine.intervalDays else 2
+        reminderTimes.clear()
+        reminderTimes.addAll(
+            medicine.reminderTimes.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                .ifEmpty { listOf("08:00") }
+        )
+    }
+
+    val isFormValid = name.isNotBlank() && dosage.isNotBlank() && (!isEditing || original != null)
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Medicine", fontWeight = FontWeight.Bold) },
+                title = { Text(if (isEditing) "Edit Medicine" else "Add Medicine", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -53,6 +73,7 @@ fun AddMedicineScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
+                .navigationBarsPadding()
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
@@ -210,15 +231,35 @@ fun AddMedicineScreen(
             Button(
                 onClick = {
                     if (isFormValid) {
-                        val medicine = Medicine(
-                            name = name.trim(),
-                            dosage = dosage.trim(),
-                            frequencyType = frequencyType,
-                            timesPerDay = if (frequencyType == FrequencyType.DAILY) timesPerDay else 1,
-                            intervalDays = if (frequencyType == FrequencyType.EVERY_N_DAYS) intervalDays else 1,
-                            reminderTimes = reminderTimes.joinToString(",")
-                        )
-                        viewModel.addMedicine(medicine)
+                        val times = if (frequencyType == FrequencyType.DAILY) timesPerDay else 1
+                        val interval = if (frequencyType == FrequencyType.EVERY_N_DAYS) intervalDays else 1
+                        val joinedTimes = reminderTimes.joinToString(",")
+                        val existing = original
+                        if (existing != null) {
+                            // copy() keeps id, isActive and createdAt (the EVERY_N_DAYS anchor)
+                            viewModel.updateMedicine(
+                                existing,
+                                existing.copy(
+                                    name = name.trim(),
+                                    dosage = dosage.trim(),
+                                    frequencyType = frequencyType,
+                                    timesPerDay = times,
+                                    intervalDays = interval,
+                                    reminderTimes = joinedTimes
+                                )
+                            )
+                        } else {
+                            viewModel.addMedicine(
+                                Medicine(
+                                    name = name.trim(),
+                                    dosage = dosage.trim(),
+                                    frequencyType = frequencyType,
+                                    timesPerDay = times,
+                                    intervalDays = interval,
+                                    reminderTimes = joinedTimes
+                                )
+                            )
+                        }
                         onNavigateBack()
                     }
                 },
@@ -227,7 +268,7 @@ fun AddMedicineScreen(
                     .fillMaxWidth()
                     .height(52.dp)
             ) {
-                Text("Save Medicine", style = MaterialTheme.typography.labelLarge)
+                Text(if (isEditing) "Save Changes" else "Save Medicine", style = MaterialTheme.typography.labelLarge)
             }
 
             Spacer(modifier = Modifier.height(16.dp))

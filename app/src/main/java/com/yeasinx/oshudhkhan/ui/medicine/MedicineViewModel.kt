@@ -34,6 +34,19 @@ class MedicineViewModel(
         }
     }
 
+    suspend fun getMedicine(id: Int): Medicine? = repository.getById(id)
+
+    fun updateMedicine(original: Medicine, edited: Medicine) {
+        viewModelScope.launch {
+            // Cancel with the original: its reminder slots may differ from the edited ones
+            AlarmScheduler.cancelMedicineAlarms(appContext, original)
+            repository.update(edited)
+            if (edited.isActive) {
+                AlarmScheduler.scheduleMedicineAlarms(appContext, edited)
+            }
+        }
+    }
+
     fun deleteMedicine(medicine: Medicine) {
         viewModelScope.launch {
             AlarmScheduler.cancelMedicineAlarms(appContext, medicine)

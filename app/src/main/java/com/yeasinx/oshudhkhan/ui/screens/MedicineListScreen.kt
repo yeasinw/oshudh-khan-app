@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -12,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yeasinx.oshudhkhan.data.Medicine
 import com.yeasinx.oshudhkhan.notification.NotificationHelper
@@ -22,7 +22,8 @@ import com.yeasinx.oshudhkhan.ui.components.MedicineCard
 @Composable
 fun MedicineListScreen(
     viewModel: MedicineViewModel,
-    onAddMedicine: () -> Unit
+    bottomPadding: Dp,
+    onEditMedicine: (Medicine) -> Unit
 ) {
     val medicines by viewModel.medicine.collectAsState()
     var medicineToDelete by remember { mutableStateOf<Medicine?>(null) }
@@ -48,13 +49,6 @@ fun MedicineListScreen(
                 }
             )
         },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = onAddMedicine,
-                icon = { Icon(Icons.Default.Add, contentDescription = "Add") },
-                text = { Text("Add Medicine") }
-            )
-        }
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -84,7 +78,7 @@ fun MedicineListScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Tap the button below to add your first medicine.",
+                        text = "Tap + below to add your first medicine.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.outline,
                         textAlign = TextAlign.Center
@@ -96,7 +90,7 @@ fun MedicineListScreen(
                         start = 16.dp,
                         end = 16.dp,
                         top = 16.dp,
-                        bottom = 88.dp
+                        bottom = bottomPadding
                     ),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -107,6 +101,7 @@ fun MedicineListScreen(
                         MedicineCard(
                             medicine = medicine,
                             onToggleActive = { viewModel.toggleActive(it) },
+                            onEdit = onEditMedicine,
                             onDelete = { medicineToDelete = it }
                         )
                     }

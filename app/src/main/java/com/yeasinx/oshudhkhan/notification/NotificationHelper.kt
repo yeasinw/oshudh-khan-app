@@ -7,9 +7,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.ContextualFlowRow
 import androidx.core.app.NotificationCompat
 import com.yeasinx.oshudhkhan.MainActivity
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 object NotificationHelper {
     private const val CHANNEL_ID = "medicine_remainder_channel"
@@ -32,8 +35,11 @@ object NotificationHelper {
     fun showMedicineNotification(
         context: Context,
         notificationId: Int,
+        medicineId: Int,
         medicineName: String,
-        dosage: String
+        dosage: String,
+        doseDate: LocalDate,
+        doseTime: LocalTime
     ) {
         val tapIntent = Intent(context, MainActivity::class.java).apply {
             flags= Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -45,17 +51,56 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val scheduledFor = doseTime.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle("\uD83D\uDC8A Time to take $medicineName")
-            .setContentText("Dosage: $dosage")
+            .setContentText("Dosage: $dosage · scheduled $scheduledFor")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
+            .addAction(0, "Taken", doseActionIntent(
+                context, DoseActionReceiver.ACTION_TAKEN, notificationId, medicineId, medicineName, dosage, doseDate, doseTime
+            ))
+            .addAction(0, "Remind in 15 min", doseActionIntent(
+                context, DoseActionReceiver.ACTION_SNOOZE, notificationId, medicineId, medicineName, dosage, doseDate, doseTime
+            ))
             .setAutoCancel(true)
             .build()
 
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.notify(notificationId, notification)
+    }
 
+    fun cancel(context: Context, notificationId: Int) {
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.cancel(notificationId)
+    }
+
+    // Distinct actions make distinct PendingIntents even with the same request code.
+    private fun doseActionIntent(
+        context: Context,
+        action: String,
+        notificationId: Int,
+        medicineId: Int,
+        medicineName: String,
+        dosage: String,
+        doseDate: LocalDate,
+        doseTime: LocalTime
+    ): PendingIntent {
+        val intent = Intent(context, DoseActionReceiver::class.java).apply {
+            this.action = action
+            putExtra(DoseActionReceiver.EXTRA_NOTIFICATION_ID, notificationId)
+            putExtra(DoseActionReceiver.EXTRA_MEDICINE_ID, medicineId)
+            putExtra(DoseActionReceiver.EXTRA_MEDICINE_NAME, medicineName)
+            putExtra(DoseActionReceiver.EXTRA_MEDICINE_DOSAGE, dosage)
+            putExtra(DoseActionReceiver.EXTRA_DATE, doseDate.toString())
+            putExtra(DoseActionReceiver.EXTRA_TIME, doseTime.toString())
+        }
+        return PendingIntent.getBroadcast(
+            context,
+            notificationId,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
     }
 }

@@ -34,6 +34,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
     buildFeatures {
         compose = true
@@ -62,4 +63,8 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.haze)
+    implementation(libs.haze.materials)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 }
