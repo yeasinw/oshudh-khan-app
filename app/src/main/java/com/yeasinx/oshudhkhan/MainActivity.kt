@@ -18,8 +18,12 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.yeasinx.oshudhkhan.navigation.MedicineNavGraph
+import com.yeasinx.oshudhkhan.ui.home.HomeViewModel
+import com.yeasinx.oshudhkhan.ui.home.HomeViewModelFactory
 import com.yeasinx.oshudhkhan.ui.medicine.MedicineViewModel
 import com.yeasinx.oshudhkhan.ui.medicine.MedicineViewModelFactory
+import com.yeasinx.oshudhkhan.ui.profile.ProfileViewModel
+import com.yeasinx.oshudhkhan.ui.profile.ProfileViewModelFactory
 import com.yeasinx.oshudhkhan.ui.theme.OshudhKhanTheme
 
 class MainActivity : ComponentActivity() {
@@ -38,18 +42,29 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             OshudhKhanTheme {
+                val navController = rememberNavController()
+                val viewModel: MedicineViewModel = viewModel(
+                    factory = MedicineViewModelFactory(app.repository, applicationContext)
+                )
+                val homeViewModel: HomeViewModel = viewModel(
+                    factory = HomeViewModelFactory(app.repository, app.userRepository)
+                )
+                val profileViewModel: ProfileViewModel = viewModel(
+                    factory = ProfileViewModelFactory(app.userRepository)
+                )
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = MaterialTheme.colorScheme.background,
+                    bottomBar = {
+                        com.yeasinx.oshudhkhan.navigation.FloatingBottomNavBar(navController = navController)
+                    }
                 ) { innerPadding ->
-                    val navController = rememberNavController()
-                    val viewModel: MedicineViewModel = viewModel(
-                        factory = MedicineViewModelFactory(app.repository, applicationContext)
-                    )
                     Box(modifier = Modifier.padding(innerPadding)) {
                         MedicineNavGraph(
                             navController = navController,
-                            viewModel = viewModel
+                            viewModel = viewModel,
+                            homeViewModel = homeViewModel,
+                            profileViewModel = profileViewModel
                         )
                     }
                 }
