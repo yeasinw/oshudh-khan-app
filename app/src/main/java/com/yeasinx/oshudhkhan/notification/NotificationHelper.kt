@@ -7,9 +7,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.ContextualFlowRow
 import androidx.core.app.NotificationCompat
 import com.yeasinx.oshudhkhan.MainActivity
+import java.time.LocalDate
+import java.time.LocalTime
 
 object NotificationHelper {
     private const val CHANNEL_ID = "medicine_remainder_channel"
@@ -32,8 +33,10 @@ object NotificationHelper {
     fun showMedicineNotification(
         context: Context,
         notificationId: Int,
+        medicineId: Int,
         medicineName: String,
-        dosage: String
+        dosage: String,
+        doseTime: LocalTime
     ) {
         val tapIntent = Intent(context, MainActivity::class.java).apply {
             flags= Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -51,11 +54,32 @@ object NotificationHelper {
             .setContentText("Dosage: $dosage")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
+            .addAction(0, "Taken", takenPendingIntent(context, notificationId, medicineId, doseTime))
             .setAutoCancel(true)
             .build()
 
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.notify(notificationId, notification)
 
+    }
+
+    private fun takenPendingIntent(
+        context: Context,
+        notificationId: Int,
+        medicineId: Int,
+        doseTime: LocalTime
+    ): PendingIntent {
+        val intent = Intent(context, DoseActionReceiver::class.java).apply {
+            putExtra(DoseActionReceiver.EXTRA_NOTIFICATION_ID, notificationId)
+            putExtra(DoseActionReceiver.EXTRA_MEDICINE_ID, medicineId)
+            putExtra(DoseActionReceiver.EXTRA_DATE, LocalDate.now().toString())
+            putExtra(DoseActionReceiver.EXTRA_TIME, doseTime.toString())
+        }
+        return PendingIntent.getBroadcast(
+            context,
+            notificationId,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
     }
 }

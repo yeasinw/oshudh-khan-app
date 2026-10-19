@@ -24,6 +24,10 @@
             android:exported="false" />
 
         <receiver
+            android:name=".notification.DoseActionReceiver"
+            android:exported="false" />
+
+        <receiver
             android:name=".notification.BootReceiver"
             android:exported="true">
             <intent-filter>

@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.icu.util.Calendar
 import android.os.Build
+import java.time.LocalTime
 
 class AlarmReceiver : BroadcastReceiver() {
 
@@ -31,9 +32,11 @@ class AlarmReceiver : BroadcastReceiver() {
 
         NotificationHelper.showMedicineNotification(
             context = context,
-            notificationId = medicineId,
+            notificationId = requestCode,
+            medicineId = medicineId,
             medicineName = medicineName,
-            dosage = medicineDosage
+            dosage = medicineDosage,
+            doseTime = LocalTime.of(hour, minute)
         )
 
         // Schedule the next alarm
