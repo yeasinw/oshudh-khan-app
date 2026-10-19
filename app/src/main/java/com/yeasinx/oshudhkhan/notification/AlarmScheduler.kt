@@ -6,8 +6,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.yeasinx.oshudhkhan.data.FrequencyType
+import com.yeasinx.oshudhkhan.data.DoseSchedule
 import com.yeasinx.oshudhkhan.data.Medicine
-import java.util.Calendar
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
 
 object AlarmScheduler {
 
@@ -45,28 +49,26 @@ object AlarmScheduler {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
-            val calendar = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, hour)
-                set(Calendar.MINUTE, minute)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-                if (timeInMillis <= System.currentTimeMillis()) {
-                    add(Calendar.DAY_OF_MONTH, 1)
-                }
-            }
+            // First trigger on a day the medicine is actually due (keeps EVERY_N_DAYS in phase with DoseSchedule)
+            val zone = ZoneId.systemDefault()
+            val now = LocalDateTime.now(zone)
+            val earliest = if (now.toLocalTime() < LocalTime.of(hour, minute)) now.toLocalDate()
+                           else now.toLocalDate().plusDays(1)
+            val triggerDate: LocalDate = DoseSchedule.nextDueDate(medicine, earliest, zone)
+            val triggerAtMillis = triggerDate.atTime(hour, minute).atZone(zone).toInstant().toEpochMilli()
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 if (alarmManager.canScheduleExactAlarms()) {
                     alarmManager.setExactAndAllowWhileIdle(
                         AlarmManager.RTC_WAKEUP,
-                        calendar.timeInMillis,
+                        triggerAtMillis,
                         pendingIntent
                     )
                 }
             } else {
                 alarmManager.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
-                    calendar.timeInMillis,
+                    triggerAtMillis,
                     pendingIntent
                 )
             }
