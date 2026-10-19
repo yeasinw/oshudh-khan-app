@@ -11,6 +11,9 @@ interface DoseLogDao {
     @Query("DELETE FROM dose_logs WHERE medicineId = :medicineId AND date = :date AND time = :time")
     suspend fun delete(medicineId: Int, date: String, time: String)
 
+    @Query("SELECT EXISTS(SELECT 1 FROM dose_logs WHERE medicineId = :medicineId AND date = :date AND time = :time)")
+    suspend fun exists(medicineId: Int, date: String, time: String): Boolean
+
     @Query("SELECT * FROM dose_logs WHERE date BETWEEN :from AND :to")
     fun logsBetween(from: String, to: String): Flow<List<DoseLog>>
 }

@@ -23,6 +23,9 @@ class MedicineRepository(
     fun doseLogsBetween(from: LocalDate, to: LocalDate): Flow<List<DoseLog>> =
         doseLogDao.logsBetween(from.toString(), to.toString())
 
+    suspend fun isTaken(medicineId: Int, date: LocalDate, time: LocalTime): Boolean =
+        doseLogDao.exists(medicineId, date.toString(), time.toString())
+
     suspend fun markTaken(medicineId: Int, date: LocalDate, time: LocalTime) =
         doseLogDao.insert(DoseLog(medicineId = medicineId, date = date.toString(), time = time.toString()))
 
