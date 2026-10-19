@@ -58,6 +58,24 @@ app/src/main/java/com/yeasinx/oshudhkhan/
 
 3. On first launch, allow notifications. On Android 12+, the app also needs permission to schedule exact alarms, or reminders won't fire.
 
+## Releases (CI)
+
+Every push to `main` runs [`.github/workflows/release.yml`](.github/workflows/release.yml). It runs the unit tests, builds a signed release APK and publishes it as a GitHub Release (`v1.0.<run number>`) with auto-generated notes. It can also be started by hand from the Actions tab.
+
+- **Versioning:** `versionCode` is the workflow run number and `versionName` is `1.0.<run number>`. To move to `2.0`, change the prefix in `app/build.gradle.kts`.
+- **Signing:** the APK is signed with the existing release keystore, supplied through these repository secrets:
+
+  ```bash
+  gh secret set KEYSTORE_BASE64 < <(base64 -i /path/to/release.jks)
+  gh secret set KEYSTORE_PASSWORD
+  gh secret set KEY_ALIAS
+  gh secret set KEY_PASSWORD
+  ```
+
+  The release keystore is kept outside the repo, in `~/.android-keys/oshudhkhan/` on the maintainer's machine. Keep a backup of it: if the key is lost, installed copies of the app can never be updated.
+
+  Local builds don't need these. Without `KEYSTORE_PATH`, `assembleRelease` produces an unsigned APK.
+
 ## Permissions
 
 | Permission | Why |
