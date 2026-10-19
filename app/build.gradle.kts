@@ -4,6 +4,11 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+// CI passes -PbuildNumber=<run number>; bump the "1.0" prefix by hand for bigger releases.
+val buildNumber = providers.gradleProperty("buildNumber").orNull?.toInt() ?: 1
+// Release signing comes from the environment (GitHub secrets in CI); without it the release APK is unsigned.
+val keystorePath: String? = System.getenv("KEYSTORE_PATH")
+
 android {
     namespace = "com.yeasinx.oshudhkhan"
     compileSdk {
@@ -16,14 +21,28 @@ android {
         applicationId = "com.yeasinx.oshudhkhan"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = buildNumber
+        versionName = "1.0.$buildNumber"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        if (keystorePath != null) {
+            create("release") {
+                storeFile = file(keystorePath)
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (keystorePath != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
