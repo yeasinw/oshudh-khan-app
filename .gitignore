@@ -14,3 +14,7 @@
 .cxx
 local.properties
 .kotlin
+# Signing keys must never be committed
+*.jks
+*.keystore
+keystore.properties
