@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yeasinx.oshudhkhan.ui.components.HeatmapLegend
 import com.yeasinx.oshudhkhan.ui.components.WeekHeatmap
@@ -22,6 +23,7 @@ import java.time.format.FormatStyle
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
+    bottomPadding: Dp,
     onSetUpProfile: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -29,7 +31,7 @@ fun HomeScreen(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = bottomPadding),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {

@@ -1,6 +1,7 @@
 package com.yeasinx.oshudhkhan.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
@@ -33,7 +34,8 @@ fun MedicineNavGraph(
     navController: NavHostController,
     viewModel: MedicineViewModel,
     homeViewModel: HomeViewModel,
-    profileViewModel: ProfileViewModel
+    profileViewModel: ProfileViewModel,
+    bottomPadding: Dp
 ) {
     NavHost(
         navController = navController,
@@ -42,6 +44,7 @@ fun MedicineNavGraph(
         composable(Screen.Home.route) {
             HomeScreen(
                 viewModel = homeViewModel,
+                bottomPadding = bottomPadding,
                 onSetUpProfile = {
                     navController.navigate(Screen.Profile.route) {
                         popUpTo(Screen.Home.route) { saveState = true }
@@ -54,7 +57,7 @@ fun MedicineNavGraph(
         composable(Screen.MedicineList.route) {
             MedicineListScreen(
                 viewModel = viewModel,
-                onAddMedicine = { navController.navigate(Screen.AddMedicine.ADD) },
+                bottomPadding = bottomPadding,
                 onEditMedicine = { navController.navigate(Screen.AddMedicine.editRoute(it.id)) }
             )
         }
@@ -72,7 +75,7 @@ fun MedicineNavGraph(
             )
         }
         composable(Screen.Profile.route) {
-            ProfileScreen(viewModel = profileViewModel)
+            ProfileScreen(viewModel = profileViewModel, bottomPadding = bottomPadding)
         }
     }
 }

@@ -1,27 +1,40 @@
 package com.yeasinx.oshudhkhan.navigation
 
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
+
+private val BAR_HEIGHT = 72.dp
+private val BAR_MARGIN = 16.dp
+
+// Vertical space the floating bar occupies above the system navigation inset.
+val NAV_BAR_SPACE = BAR_HEIGHT + BAR_MARGIN * 2
 
 sealed class BottomNavItem(val title: String, val icon: ImageVector, val route: String) {
     object Home : BottomNavItem("Home", Icons.Default.Home, Screen.Home.route)
@@ -30,7 +43,11 @@ sealed class BottomNavItem(val title: String, val icon: ImageVector, val route: 
 }
 
 @Composable
-fun FloatingBottomNavBar(navController: NavController) {
+fun FloatingBottomNavBar(
+    navController: NavController,
+    hazeState: HazeState,
+    modifier: Modifier = Modifier
+) {
     val items = listOf(
         BottomNavItem.Home,
         BottomNavItem.Medicines,
@@ -39,41 +56,70 @@ fun FloatingBottomNavBar(navController: NavController) {
     val backStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry.value?.destination?.route
 
-    // Hide bottom nav on specific screens (like AddMedicine)
+    // Hide bottom nav on the add/edit form
     if (currentRoute == Screen.AddMedicine.route) {
         return
     }
 
-    val shape = RoundedCornerShape(46.dp)
-
-    NavigationBar(
-        modifier = Modifier
+    Row(
+        modifier = modifier
             .navigationBarsPadding()
-            .padding(horizontal = 16.dp, vertical = 16.dp)
-            .shadow(elevation = 8.dp, shape = RoundedCornerShape(24.dp))
-            .clip(shape)
-            .height(72.dp),
-        containerColor = MaterialTheme.colorScheme.surface,
-        tonalElevation = 8.dp,
-        windowInsets = WindowInsets(0, 0, 0, 0)
+            .padding(BAR_MARGIN)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items.forEach { item ->
-            NavigationBarItem(
-                icon = { Icon(imageVector = item.icon, contentDescription = item.title) },
-                label = { Text(text = item.title) },
-                selected = currentRoute == item.route,
-                onClick = {
-                    navController.navigate(item.route) {
-                        navController.graph.startDestinationRoute?.let { route ->
-                            popUpTo(route) {
-                                saveState = true
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .height(BAR_HEIGHT)
+                .glass(hazeState, RoundedCornerShape(BAR_HEIGHT / 2)),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            items.forEach { item ->
+                NavigationBarItem(
+                    icon = { Icon(imageVector = item.icon, contentDescription = item.title) },
+                    label = { Text(text = item.title) },
+                    selected = currentRoute == item.route,
+                    colors = NavigationBarItemDefaults.colors(
+                        indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+                    ),
+                    onClick = {
+                        navController.navigate(item.route) {
+                            navController.graph.startDestinationRoute?.let { route ->
+                                popUpTo(route) {
+                                    saveState = true
+                                }
                             }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
                     }
-                }
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .size(BAR_HEIGHT)
+                .glass(hazeState, CircleShape)
+                .clickable(role = Role.Button) { navController.navigate(Screen.AddMedicine.ADD) },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add medicine",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(32.dp)
             )
         }
     }
 }
+
+// Frosted glass: blurs the content behind (Android 12+; translucent tint on older versions).
+@OptIn(ExperimentalHazeMaterialsApi::class)
+@Composable
+private fun Modifier.glass(hazeState: HazeState, shape: Shape): Modifier = this
+    .clip(shape)
+    .hazeEffect(state = hazeState, style = HazeMaterials.thin())
+    .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.25f), shape)

@@ -16,12 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yeasinx.oshudhkhan.ui.profile.ProfileErrors
 import com.yeasinx.oshudhkhan.ui.profile.ProfileViewModel
 
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel) {
+fun ProfileScreen(viewModel: ProfileViewModel, bottomPadding: Dp) {
     val profile by viewModel.profile.collectAsState()
     var editing by rememberSaveable { mutableStateOf(false) }
     var name by rememberSaveable { mutableStateOf("") }
@@ -41,7 +42,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = bottomPadding),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
