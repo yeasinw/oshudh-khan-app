@@ -1,8 +1,12 @@
 package com.yeasinx.oshudhkhan.navigation
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -12,16 +16,19 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -30,7 +37,7 @@ import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 
-private val BAR_HEIGHT = 72.dp
+private val BAR_HEIGHT = 64.dp
 private val BAR_MARGIN = 16.dp
 
 // Vertical space the floating bar occupies above the system navigation inset.
@@ -73,17 +80,14 @@ fun FloatingBottomNavBar(
             modifier = Modifier
                 .weight(1f)
                 .height(BAR_HEIGHT)
-                .glass(hazeState, RoundedCornerShape(BAR_HEIGHT / 2)),
+                .glass(hazeState, RoundedCornerShape(BAR_HEIGHT / 2))
+                .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             items.forEach { item ->
-                NavigationBarItem(
-                    icon = { Icon(imageVector = item.icon, contentDescription = item.title) },
-                    label = { Text(text = item.title) },
+                NavTab(
+                    item = item,
                     selected = currentRoute == item.route,
-                    colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
-                    ),
                     onClick = {
                         navController.navigate(item.route) {
                             navController.graph.startDestinationRoute?.let { route ->
@@ -110,8 +114,51 @@ fun FloatingBottomNavBar(
                 imageVector = Icons.Default.Add,
                 contentDescription = "Add medicine",
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(28.dp)
             )
+        }
+    }
+}
+
+// Icon-only when idle; the selected tab grows into a tinted pill with its label.
+@Composable
+private fun RowScope.NavTab(item: BottomNavItem, selected: Boolean, onClick: () -> Unit) {
+    val weight by animateFloatAsState(if (selected) 1.7f else 1f, label = "tabWeight")
+    val tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+    Box(
+        modifier = Modifier
+            .weight(weight)
+            .fillMaxHeight()
+            // Whole column is the touch target; the pill animation is the feedback
+            .selectable(
+                selected = selected,
+                onClick = onClick,
+                role = Role.Tab,
+                interactionSource = null,
+                indication = null
+            )
+            .semantics { contentDescription = item.title },
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.16f) else Color.Transparent)
+                .animateContentSize()
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(imageVector = item.icon, contentDescription = null, tint = tint)
+            if (selected) {
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = item.title,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = tint,
+                    maxLines = 1
+                )
+            }
         }
     }
 }
