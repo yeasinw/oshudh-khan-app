@@ -10,6 +10,8 @@ class MedicineRepository(
 ) {
     val allMedicine: Flow<List<Medicine>> = dao.getAllMedicines()
 
+    suspend fun getById(id: Int): Medicine? = dao.getMedicineById(id)
+
     suspend fun insert(medicine: Medicine): Long = dao.insertMedicine(medicine)
 
     suspend fun update(medicine: Medicine) = dao.updateMedicine(medicine)

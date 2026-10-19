@@ -8,6 +8,9 @@ interface MedicineDao {
     @Query("SELECT * FROM medicines ORDER BY createdAt DESC")
     fun getAllMedicines(): Flow<List<Medicine>>
 
+    @Query("SELECT * FROM medicines WHERE id = :id")
+    suspend fun getMedicineById(id: Int): Medicine?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMedicine(medicine: Medicine): Long
 
