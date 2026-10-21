@@ -26,6 +26,8 @@ import com.yeasinx.oshudhkhan.navigation.MedicineNavGraph
 import com.yeasinx.oshudhkhan.navigation.NAV_BAR_SPACE
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
+import com.yeasinx.oshudhkhan.ui.auth.AuthViewModel
+import com.yeasinx.oshudhkhan.ui.auth.AuthViewModelFactory
 import com.yeasinx.oshudhkhan.ui.home.HomeViewModel
 import com.yeasinx.oshudhkhan.ui.home.HomeViewModelFactory
 import com.yeasinx.oshudhkhan.ui.medicine.MedicineViewModel
@@ -60,6 +62,9 @@ class MainActivity : ComponentActivity() {
                 val profileViewModel: ProfileViewModel = viewModel(
                     factory = ProfileViewModelFactory(app.userRepository)
                 )
+                val authViewModel: AuthViewModel = viewModel(
+                    factory = AuthViewModelFactory(app.authRepository, app.userRepository)
+                )
                 val hazeState = rememberHazeState()
                 // Content scrolls underneath the floating glass bar, so screens reserve this much at the bottom
                 val bottomPadding = NAV_BAR_SPACE +
@@ -80,6 +85,7 @@ class MainActivity : ComponentActivity() {
                                 viewModel = viewModel,
                                 homeViewModel = homeViewModel,
                                 profileViewModel = profileViewModel,
+                                authViewModel = authViewModel,
                                 bottomPadding = bottomPadding
                             )
                         }

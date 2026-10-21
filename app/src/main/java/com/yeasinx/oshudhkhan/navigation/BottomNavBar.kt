@@ -63,8 +63,8 @@ fun FloatingBottomNavBar(
     val backStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry.value?.destination?.route
 
-    // Hide bottom nav on the add/edit form
-    if (currentRoute == Screen.AddMedicine.route) {
+    // Hide bottom nav on full-screen forms (add/edit medicine, sign in)
+    if (currentRoute == Screen.AddMedicine.route || currentRoute == Screen.SignIn.route) {
         return
     }
 
