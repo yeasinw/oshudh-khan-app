@@ -10,12 +10,10 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.yeasinx.oshudhkhan.data.AuthRepository
-import com.yeasinx.oshudhkhan.data.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -23,10 +21,8 @@ import kotlinx.coroutines.launch
 
 data class AuthUiState(val loading: Boolean = false, val error: String? = null, val resetSent: Boolean = false)
 
-class AuthViewModel(
-    private val authRepository: AuthRepository,
-    private val userRepository: UserRepository
-) : ViewModel() {
+// Profile email prefill happens in CloudSync, after the cloud merge
+class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
 
     val accountEmail: StateFlow<String?> = authRepository.currentUser
         .map { it?.email }
@@ -51,10 +47,7 @@ class AuthViewModel(
             val result = if (createAccount) authRepository.signUp(trimmed, password)
             else authRepository.signIn(trimmed, password)
             result
-                .onSuccess {
-                    prefillProfileEmail(trimmed)
-                    _uiState.value = AuthUiState()
-                }
+                .onSuccess { _uiState.value = AuthUiState() }
                 .onFailure { _uiState.value = AuthUiState(error = authErrorMessage(it)) }
         }
     }
@@ -78,11 +71,6 @@ class AuthViewModel(
 
     fun clearMessages() = _uiState.update { it.copy(error = null, resetSent = false) }
 
-    private suspend fun prefillProfileEmail(email: String) {
-        val profile = userRepository.profile.first()
-        if (profile.email.isBlank()) userRepository.save(profile.copy(email = email))
-    }
-
     private fun authErrorMessage(e: Throwable): String = when (e) {
         is FirebaseAuthWeakPasswordException -> "Password must be at least 6 characters"
         is FirebaseAuthInvalidCredentialsException,
@@ -93,14 +81,11 @@ class AuthViewModel(
     }
 }
 
-class AuthViewModelFactory(
-    private val authRepository: AuthRepository,
-    private val userRepository: UserRepository
-) : ViewModelProvider.Factory {
+class AuthViewModelFactory(private val authRepository: AuthRepository) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {
-            return AuthViewModel(authRepository, userRepository) as T
+            return AuthViewModel(authRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
