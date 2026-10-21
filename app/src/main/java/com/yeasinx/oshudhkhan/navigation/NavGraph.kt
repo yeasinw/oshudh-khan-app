@@ -10,6 +10,8 @@ import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.yeasinx.oshudhkhan.ui.auth.AuthViewModel
+import com.yeasinx.oshudhkhan.ui.auth.SignInScreen
 import com.yeasinx.oshudhkhan.ui.home.HomeViewModel
 import com.yeasinx.oshudhkhan.ui.medicine.MedicineViewModel
 import com.yeasinx.oshudhkhan.ui.profile.ProfileViewModel
@@ -27,6 +29,7 @@ sealed class Screen(val route: String) {
         fun editRoute(id: Int) = "add_medicine?medicineId=$id"
     }
     object Profile : Screen("profile")
+    object SignIn : Screen("sign_in")
 }
 
 @Composable
@@ -35,6 +38,7 @@ fun MedicineNavGraph(
     viewModel: MedicineViewModel,
     homeViewModel: HomeViewModel,
     profileViewModel: ProfileViewModel,
+    authViewModel: AuthViewModel,
     bottomPadding: Dp
 ) {
     NavHost(
@@ -75,7 +79,15 @@ fun MedicineNavGraph(
             )
         }
         composable(Screen.Profile.route) {
-            ProfileScreen(viewModel = profileViewModel, bottomPadding = bottomPadding)
+            ProfileScreen(
+                viewModel = profileViewModel,
+                authViewModel = authViewModel,
+                bottomPadding = bottomPadding,
+                onSignIn = { navController.navigate(Screen.SignIn.route) }
+            )
+        }
+        composable(Screen.SignIn.route) {
+            SignInScreen(viewModel = authViewModel, onNavigateBack = { navController.popBackStack() })
         }
     }
 }
