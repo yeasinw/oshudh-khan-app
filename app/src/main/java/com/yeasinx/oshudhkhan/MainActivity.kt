@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
                     factory = ProfileViewModelFactory(app.userRepository)
                 )
                 val authViewModel: AuthViewModel = viewModel(
-                    factory = AuthViewModelFactory(app.authRepository, app.userRepository)
+                    factory = AuthViewModelFactory(app.authRepository)
                 )
                 val hazeState = rememberHazeState()
                 // Content scrolls underneath the floating glass bar, so screens reserve this much at the bottom

@@ -149,7 +149,13 @@ fun ProfileScreen(
         AlertDialog(
             onDismissRequest = { confirmSignOut = false },
             title = { Text("Sign out?") },
-            text = { Text("Your medicines and profile stay on this device.") },
+            text = {
+                Text(
+                    "Your medicines and profile stay on this device. Signing in to a different " +
+                        "account later replaces them with that account's data, so changes made " +
+                        "while signed out would be lost."
+                )
+            },
             confirmButton = {
                 TextButton(onClick = {
                     authViewModel.signOut()
