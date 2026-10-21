@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.google.services)
 }
 
 // CI passes -PbuildNumber=<run number>; bump the "1.0" prefix by hand for bigger releases.
@@ -86,4 +87,7 @@ dependencies {
     implementation(libs.haze)
     implementation(libs.haze.materials)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
 }
