@@ -1,4 +1,4 @@
-package com.yeasinx.oshudhkhan.data
+package com.yeasinx.oshudhkhan.data.remote
 
 import android.util.Log
 import com.google.android.gms.tasks.Task
@@ -9,6 +9,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
+import com.yeasinx.oshudhkhan.data.UserProfile
+import com.yeasinx.oshudhkhan.data.local.DoseLog
+import com.yeasinx.oshudhkhan.data.local.FrequencyType
+import com.yeasinx.oshudhkhan.data.local.Medicine
+import com.yeasinx.oshudhkhan.data.local.Tombstone
 
 // One synced item as stored in the cloud. Deletes are kept as `deleted` markers so they
 // reach other devices; `updatedAt` decides which side wins in a merge.

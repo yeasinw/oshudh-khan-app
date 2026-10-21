@@ -4,9 +4,9 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.yeasinx.oshudhkhan.data.DoseLog
+import com.yeasinx.oshudhkhan.data.local.DoseLog
 import com.yeasinx.oshudhkhan.data.DoseSchedule
-import com.yeasinx.oshudhkhan.data.Medicine
+import com.yeasinx.oshudhkhan.data.local.Medicine
 import com.yeasinx.oshudhkhan.data.MedicineRepository
 import com.yeasinx.oshudhkhan.data.UserRepository
 import com.yeasinx.oshudhkhan.notification.AlarmScheduler

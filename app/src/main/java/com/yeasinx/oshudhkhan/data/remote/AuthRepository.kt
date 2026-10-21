@@ -1,4 +1,4 @@
-package com.yeasinx.oshudhkhan.data
+package com.yeasinx.oshudhkhan.data.remote
 
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth

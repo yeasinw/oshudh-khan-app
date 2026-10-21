@@ -1,13 +1,22 @@
-package com.yeasinx.oshudhkhan.data
+package com.yeasinx.oshudhkhan.data.sync
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.yeasinx.oshudhkhan.data.CloudBackup.Companion.DOSE_LOGS
-import com.yeasinx.oshudhkhan.data.CloudBackup.Companion.MEDICINES
+import com.yeasinx.oshudhkhan.data.remote.CloudBackup.Companion.DOSE_LOGS
+import com.yeasinx.oshudhkhan.data.remote.CloudBackup.Companion.MEDICINES
 import com.yeasinx.oshudhkhan.notification.AlarmScheduler
 import kotlinx.coroutines.flow.first
+import com.yeasinx.oshudhkhan.data.UserRepository
+import com.yeasinx.oshudhkhan.data.local.DoseLogDao
+import com.yeasinx.oshudhkhan.data.local.MedicineDao
+import com.yeasinx.oshudhkhan.data.local.TombstoneDao
+import com.yeasinx.oshudhkhan.data.remote.CloudBackup
+import com.yeasinx.oshudhkhan.data.remote.SyncRecord
+import com.yeasinx.oshudhkhan.data.remote.doseFromRecord
+import com.yeasinx.oshudhkhan.data.remote.medicineFromRecord
+import com.yeasinx.oshudhkhan.data.remote.toRecord
 
 private val Context.syncDataStore by preferencesDataStore(name = "sync_state")
 

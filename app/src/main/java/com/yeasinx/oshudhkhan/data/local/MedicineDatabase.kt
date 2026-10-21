@@ -1,4 +1,4 @@
-package com.yeasinx.oshudhkhan.data
+package com.yeasinx.oshudhkhan.data.local
 
 import android.content.Context
 import androidx.room.*

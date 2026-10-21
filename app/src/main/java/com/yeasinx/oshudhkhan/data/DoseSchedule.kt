@@ -5,6 +5,8 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
+import com.yeasinx.oshudhkhan.data.local.FrequencyType
+import com.yeasinx.oshudhkhan.data.local.Medicine
 
 // Single source of truth for which doses of a medicine are due on a given date.
 object DoseSchedule {

@@ -1,4 +1,4 @@
-package com.yeasinx.oshudhkhan.data
+package com.yeasinx.oshudhkhan.data.local
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow

@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
-import com.yeasinx.oshudhkhan.data.FrequencyType
-import com.yeasinx.oshudhkhan.data.Medicine
+import com.yeasinx.oshudhkhan.data.local.FrequencyType
+import com.yeasinx.oshudhkhan.data.local.Medicine
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
