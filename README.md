@@ -30,20 +30,22 @@ Requirements: min SDK 24, target/compile SDK 36, Kotlin 2.3, AGP 9.
 
 ```
 app/src/main/java/com/yeasinx/oshudhkhan/
-├── data/            Room entities and DAOs (Medicine, DoseLog), repositories,
-│                    DoseSchedule (which doses are due on a given date), UserRepository
+├── data/            Repositories (MedicineRepository, UserRepository), UserProfile,
+│   │                DoseSchedule (which doses are due on a given date)
+│   ├── local/       Room database, entities and DAOs (Medicine, DoseLog, Tombstone)
+│   ├── remote/      Firebase: AuthRepository, CloudBackup (Firestore records)
+│   └── sync/        CloudSync (merges local data with the cloud backup)
 ├── notification/    AlarmScheduler, AlarmReceiver, DoseActionReceiver (Taken / snooze),
 │                    BootReceiver, NotificationHelper
 ├── navigation/      NavGraph, floating glass bottom bar
-├── ui/
-│   ├── screens/     Home, Medicine list, Add/Edit medicine, Profile
-│   ├── components/  MedicineCard, WeekHeatmap
-│   ├── home/        HomeViewModel
-│   ├── medicine/    MedicineViewModel
-│   ├── profile/     ProfileViewModel
+├── ui/              One folder per feature: its screens, ViewModel and components
+│   ├── home/        HomeScreen, HomeViewModel, WeekHeatmap
+│   ├── medicine/    Medicine list, Add/Edit medicine, MedicineViewModel, MedicineCard
+│   ├── profile/     ProfileScreen, ProfileViewModel
+│   ├── auth/        SignInScreen, AuthViewModel
 │   └── theme/
 ├── MainActivity.kt
-└── MedicineApp.kt   Creates the database and repositories, and the notification channel
+└── MedicineApp.kt   Creates the database, repositories and cloud sync, and the notification channel
 ```
 
 ## Getting started

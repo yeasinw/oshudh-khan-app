@@ -10,15 +10,15 @@ Oshudh Khan is a single-module Android app (`:app`, Kotlin, Jetpack Compose, Mat
 ./gradlew :app:assembleDebug                      # debug APK
 ./gradlew :app:installDebug                       # install on a connected device/emulator
 ./gradlew :app:testDebugUnitTest                  # JVM unit tests (app/src/test)
-./gradlew :app:testDebugUnitTest --tests "com.yeasinx.oshudhkhan.CloudSyncTest"            # one class
-./gradlew :app:testDebugUnitTest --tests "com.yeasinx.oshudhkhan.CloudSyncTest.newerEditWins" # one test
+./gradlew :app:testDebugUnitTest --tests "com.yeasinx.oshudhkhan.data.sync.CloudSyncTest"            # one class
+./gradlew :app:testDebugUnitTest --tests "com.yeasinx.oshudhkhan.data.sync.CloudSyncTest.newerEditWins" # one test
 ./gradlew :app:lintDebug                          # Android lint
 ./gradlew :app:assembleRelease                    # unsigned unless KEYSTORE_PATH etc. are set
 ```
 
 `adb` is not on the default shell PATH; it lives at `~/Library/Android/sdk/platform-tools/adb`. Useful log tags: `CloudSync`, `CloudBackup`.
 
-Unit tests are plain JVM tests. Android framework calls (e.g. `Patterns.EMAIL_ADDRESS`) are stubs there, so keep testable logic in pure functions (see `DoseSchedule`, `reconcile`, the record mappers in `CloudBackup.kt`). The instrumented tests are only template stubs.
+Unit tests are plain JVM tests. Android framework calls (e.g. `Patterns.EMAIL_ADDRESS`) are stubs there, so keep testable logic in pure functions (see `DoseSchedule`, `reconcile`, the record mappers in `data/remote/CloudBackup.kt`). The instrumented tests are only template stubs.
 
 ## Build / config
 
@@ -29,6 +29,8 @@ Unit tests are plain JVM tests. Android framework calls (e.g. `Patterns.EMAIL_AD
 - Work happens on feature branches and goes through PRs into `dev`/`main`. Commit messages use conventional prefixes (`feat:`, `ci:`, `docs:`, `chore:`).
 
 ## Architecture
+
+**Package layout.** `ui/<feature>/` holds everything for one feature (screens, ViewModel + factory, feature-only components). Only move a component to a shared package once a second feature uses it. `data/` keeps the repositories and pure domain logic at its root. `data/local` is Room, `data/remote` is Firebase (auth + Firestore records), and `data/sync` merges the two. `local` must not depend on `remote` or `sync`.
 
 **Manual DI.** `MedicineApp` (the Application class) lazily builds the Room database, `CloudBackup`, `MedicineRepository`, `UserRepository`, `AuthRepository` and `CloudSync`. `MainActivity` creates every ViewModel with its hand-written `*ViewModelFactory` and passes them into `MedicineNavGraph`. There is no Hilt/Koin. New dependencies are wired the same way. Broadcast receivers reach the repositories through `context.applicationContext as MedicineApp`.
 
@@ -53,7 +55,7 @@ Unit tests are plain JVM tests. Android framework calls (e.g. `Patterns.EMAIL_AD
 - `MedicineApp.onCreate` collects it and runs `CloudSync.sync(uid, email)` on sign-in and on every launch while signed in.
 - Firestore layout: `users/{uid}` holds the profile fields; `users/{uid}/medicines/{uuid}`; `users/{uid}/doseLogs/{medicineUuid}_{date}_{time}`. Security rules allow only `request.auth.uid == uid` under `users/{uid}/**`.
 - **Write-through:** `MedicineRepository` and `UserRepository` stamp `updatedAt` on every write and push to `CloudBackup`. Pushes are fire-and-forget: they're never awaited, Firestore queues them offline, and they're a no-op while signed out. A delete writes a local `Tombstone` and pushes a `deleted: true` record, never a hard delete.
-- **Merge:** `reconcile()` in `CloudSync.kt` is last-writer-wins per item over `SyncRecord`s (live items plus tombstones). A delete wins a timestamp tie. A dose's `updatedAt` is its `takenAt`.
+- **Merge:** `reconcile()` in `data/sync/CloudSync.kt` is last-writer-wins per item over `SyncRecord`s (live items plus tombstones). A delete wins a timestamp tie. A dose's `updatedAt` is its `takenAt`.
 - Changes coming from the cloud are applied through the DAOs directly, not the repositories, so they are not re-stamped or re-pushed.
 - **Account ownership:** `CloudSync` remembers `owner_uid` (DataStore `sync_state`). Signing in as a different account wipes local data and alarms before merging. Data created before any sign-in is adopted by the first account.
 - **Profile email:** it is prefilled from the auth email inside `CloudSync`, *after* the merge. Doing it earlier would stamp a newer, mostly empty profile over the backed-up one.
