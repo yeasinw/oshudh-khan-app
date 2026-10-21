@@ -1,4 +1,4 @@
-package com.yeasinx.oshudhkhan.ui.screens
+package com.yeasinx.oshudhkhan.ui.medicine
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,8 +15,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yeasinx.oshudhkhan.data.Medicine
 import com.yeasinx.oshudhkhan.notification.NotificationHelper
-import com.yeasinx.oshudhkhan.ui.medicine.MedicineViewModel
-import com.yeasinx.oshudhkhan.ui.components.MedicineCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

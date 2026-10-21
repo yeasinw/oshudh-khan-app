@@ -1,4 +1,4 @@
-package com.yeasinx.oshudhkhan.ui.screens
+package com.yeasinx.oshudhkhan.ui.medicine
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -18,7 +18,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import com.yeasinx.oshudhkhan.data.FrequencyType
 import com.yeasinx.oshudhkhan.data.Medicine
-import com.yeasinx.oshudhkhan.ui.medicine.MedicineViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

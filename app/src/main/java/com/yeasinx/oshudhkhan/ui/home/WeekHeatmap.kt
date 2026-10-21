@@ -1,4 +1,4 @@
-package com.yeasinx.oshudhkhan.ui.components
+package com.yeasinx.oshudhkhan.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

@@ -1,4 +1,4 @@
-package com.yeasinx.oshudhkhan.ui.screens
+package com.yeasinx.oshudhkhan.ui.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,8 +19,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yeasinx.oshudhkhan.ui.auth.AuthViewModel
-import com.yeasinx.oshudhkhan.ui.profile.ProfileErrors
-import com.yeasinx.oshudhkhan.ui.profile.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

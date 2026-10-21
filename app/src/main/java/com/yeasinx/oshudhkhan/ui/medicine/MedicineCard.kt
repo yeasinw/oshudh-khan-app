@@ -1,4 +1,4 @@
-package com.yeasinx.oshudhkhan.ui.components
+package com.yeasinx.oshudhkhan.ui.medicine
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
