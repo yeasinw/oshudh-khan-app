@@ -1,4 +1,4 @@
-package com.yeasinx.oshudhkhan.ui.components
+package com.yeasinx.oshudhkhan.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
-import com.yeasinx.oshudhkhan.ui.home.DaySummary
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale

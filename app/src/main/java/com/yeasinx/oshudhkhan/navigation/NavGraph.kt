@@ -15,11 +15,11 @@ import com.yeasinx.oshudhkhan.ui.auth.SignInScreen
 import com.yeasinx.oshudhkhan.ui.home.HomeViewModel
 import com.yeasinx.oshudhkhan.ui.medicine.MedicineViewModel
 import com.yeasinx.oshudhkhan.ui.profile.ProfileViewModel
-import com.yeasinx.oshudhkhan.ui.screens.AddMedicineScreen
-import com.yeasinx.oshudhkhan.ui.screens.MedicineListScreen
+import com.yeasinx.oshudhkhan.ui.medicine.AddMedicineScreen
+import com.yeasinx.oshudhkhan.ui.medicine.MedicineListScreen
 
-import com.yeasinx.oshudhkhan.ui.screens.HomeScreen
-import com.yeasinx.oshudhkhan.ui.screens.ProfileScreen
+import com.yeasinx.oshudhkhan.ui.home.HomeScreen
+import com.yeasinx.oshudhkhan.ui.profile.ProfileScreen
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")

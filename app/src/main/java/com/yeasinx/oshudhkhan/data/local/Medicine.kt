@@ -1,4 +1,4 @@
-package com.yeasinx.oshudhkhan.data
+package com.yeasinx.oshudhkhan.data.local
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

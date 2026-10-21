@@ -1,10 +1,19 @@
 package com.yeasinx.oshudhkhan.data
 
-import com.yeasinx.oshudhkhan.data.CloudBackup.Companion.DOSE_LOGS
-import com.yeasinx.oshudhkhan.data.CloudBackup.Companion.MEDICINES
+import com.yeasinx.oshudhkhan.data.remote.CloudBackup.Companion.DOSE_LOGS
+import com.yeasinx.oshudhkhan.data.remote.CloudBackup.Companion.MEDICINES
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.LocalTime
+import com.yeasinx.oshudhkhan.data.local.DoseLog
+import com.yeasinx.oshudhkhan.data.local.DoseLogDao
+import com.yeasinx.oshudhkhan.data.local.Medicine
+import com.yeasinx.oshudhkhan.data.local.MedicineDao
+import com.yeasinx.oshudhkhan.data.local.Tombstone
+import com.yeasinx.oshudhkhan.data.local.TombstoneDao
+import com.yeasinx.oshudhkhan.data.remote.CloudBackup
+import com.yeasinx.oshudhkhan.data.remote.doseDocId
+import com.yeasinx.oshudhkhan.data.remote.toRecord
 
 // Room is the source of truth; each write is stamped for merging and mirrored to the cloud backup
 // while signed in. Deletes leave a tombstone so they also reach the cloud after an offline/signed-out delete.

@@ -3,10 +3,10 @@ package com.yeasinx.oshudhkhan
 import android.app.Application
 import android.os.Build
 import android.util.Log
-import com.yeasinx.oshudhkhan.data.AuthRepository
-import com.yeasinx.oshudhkhan.data.CloudBackup
-import com.yeasinx.oshudhkhan.data.CloudSync
-import com.yeasinx.oshudhkhan.data.MedicineDatabase
+import com.yeasinx.oshudhkhan.data.remote.AuthRepository
+import com.yeasinx.oshudhkhan.data.remote.CloudBackup
+import com.yeasinx.oshudhkhan.data.sync.CloudSync
+import com.yeasinx.oshudhkhan.data.local.MedicineDatabase
 import com.yeasinx.oshudhkhan.data.MedicineRepository
 import com.yeasinx.oshudhkhan.data.UserRepository
 import com.yeasinx.oshudhkhan.notification.NotificationHelper
