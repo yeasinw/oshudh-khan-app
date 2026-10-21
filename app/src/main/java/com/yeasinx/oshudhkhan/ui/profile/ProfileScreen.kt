@@ -1,4 +1,4 @@
-package com.yeasinx.oshudhkhan.ui.screens
+package com.yeasinx.oshudhkhan.ui.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -18,13 +18,19 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.yeasinx.oshudhkhan.ui.profile.ProfileErrors
-import com.yeasinx.oshudhkhan.ui.profile.ProfileViewModel
+import com.yeasinx.oshudhkhan.ui.auth.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel, bottomPadding: Dp) {
+fun ProfileScreen(
+    viewModel: ProfileViewModel,
+    authViewModel: AuthViewModel,
+    bottomPadding: Dp,
+    onSignIn: () -> Unit
+) {
     val profile by viewModel.profile.collectAsState()
+    val accountEmail by authViewModel.accountEmail.collectAsState()
+    var confirmSignOut by remember { mutableStateOf(false) }
     var editing by rememberSaveable { mutableStateOf(false) }
     var name by rememberSaveable { mutableStateOf("") }
     var age by rememberSaveable { mutableStateOf("") }
@@ -127,6 +133,55 @@ fun ProfileScreen(viewModel: ProfileViewModel, bottomPadding: Dp) {
                     Spacer(Modifier.width(8.dp))
                     Text("Edit profile")
                 }
+                Spacer(Modifier.height(24.dp))
+                AccountCard(
+                    accountEmail = accountEmail,
+                    onSignIn = onSignIn,
+                    onSignOut = { confirmSignOut = true }
+                )
+            }
+        }
+    }
+
+    if (confirmSignOut) {
+        AlertDialog(
+            onDismissRequest = { confirmSignOut = false },
+            title = { Text("Sign out?") },
+            text = {
+                Text(
+                    "Your medicines and profile stay on this device. Signing in to a different " +
+                        "account later replaces them with that account's data, so changes made " +
+                        "while signed out would be lost."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    authViewModel.signOut()
+                    confirmSignOut = false
+                }) { Text("Sign out") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmSignOut = false }) { Text("Cancel") }
+            }
+        )
+    }
+}
+
+@Composable
+private fun AccountCard(accountEmail: String?, onSignIn: () -> Unit, onSignOut: () -> Unit) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text("Account", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            if (accountEmail == null) {
+                Text(
+                    "Sign in to back up your medicines",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Button(onClick = onSignIn) { Text("Sign in") }
+            } else {
+                ProfileRow("Signed in as", accountEmail)
+                OutlinedButton(onClick = onSignOut) { Text("Sign out") }
             }
         }
     }

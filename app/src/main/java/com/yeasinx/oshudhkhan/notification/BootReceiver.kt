@@ -3,7 +3,7 @@ package com.yeasinx.oshudhkhan.notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.yeasinx.oshudhkhan.data.MedicineDatabase
+import com.yeasinx.oshudhkhan.data.local.MedicineDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

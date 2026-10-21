@@ -1,8 +1,7 @@
-package com.yeasinx.oshudhkhan
+package com.yeasinx.oshudhkhan.data
 
-import com.yeasinx.oshudhkhan.data.DoseSchedule
-import com.yeasinx.oshudhkhan.data.FrequencyType
-import com.yeasinx.oshudhkhan.data.Medicine
+import com.yeasinx.oshudhkhan.data.local.FrequencyType
+import com.yeasinx.oshudhkhan.data.local.Medicine
 import com.yeasinx.oshudhkhan.ui.home.greetingFor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

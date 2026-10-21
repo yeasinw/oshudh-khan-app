@@ -1,4 +1,4 @@
-package com.yeasinx.oshudhkhan.data
+package com.yeasinx.oshudhkhan.data.local
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +19,15 @@ interface MedicineDao {
 
     @Delete
     suspend fun deleteMedicine(medicine: Medicine)
+
+    @Query("SELECT * FROM medicines")
+    suspend fun getAll(): List<Medicine>
+
+    @Query("SELECT * FROM medicines WHERE uuid = :uuid")
+    suspend fun getByUuid(uuid: String): Medicine?
+
+    @Query("DELETE FROM medicines")
+    suspend fun deleteAll()
 
     @Query("SELECT * FROM medicines WHERE isActive == 1")
     suspend fun getActiveMedicines(): List<Medicine>

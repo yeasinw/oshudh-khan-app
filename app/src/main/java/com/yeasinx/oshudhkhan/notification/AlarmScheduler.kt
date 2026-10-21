@@ -5,9 +5,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import com.yeasinx.oshudhkhan.data.FrequencyType
+import com.yeasinx.oshudhkhan.data.local.FrequencyType
 import com.yeasinx.oshudhkhan.data.DoseSchedule
-import com.yeasinx.oshudhkhan.data.Medicine
+import com.yeasinx.oshudhkhan.data.local.Medicine
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
